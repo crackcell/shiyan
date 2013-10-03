@@ -1,0 +1,12 @@
+{application, collector,
+ [
+  {description, "collector"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, {colector_app, []}},
+  {env, []}
+ ]}.

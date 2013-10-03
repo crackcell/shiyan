@@ -1,0 +1,16 @@
+2013-10-04 01:33:47 =CRASH REPORT====
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.35.0>
+    registered_name: []
+    exception exit: {{bad_return,{{ipshow_app,start,[normal,[]]},{'EXIT',{{badmatch,{ok,<0.55.0>}},[{ipshow_app,start,2,[{file,"src/ipshow_app.erl"},{line,14}]},{application_master,start_it_old,4,[{file,"application_master.erl"},{line,269}]}]}}}},[{application_master,init,4,[{file,"application_master.erl"},{line,133}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,239}]}]}
+    ancestors: [<0.34.0>]
+    messages: [{'EXIT',<0.36.0>,normal}]
+    links: [<0.34.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 27
+    reductions: 115
+  neighbours:
