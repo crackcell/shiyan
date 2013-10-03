@@ -52,9 +52,9 @@ init([]) ->
     {ok, ListenSocket} = gen_tcp:listen(Port, [{active,once}, {packet,line}]),
     spawn_link(fun start_init_children/0),
     {ok, {{simple_one_for_one, 60, 3600},
-          [{ipshow_worker,
-            {ipshow_worker, start_link, [ListenSocket]}, %Pass the socket!
-            temporary, 1000, worker, [ipshow_worker]}
+          [{collector_worker,
+            {collector_worker, start_link, [ListenSocket]}, %Pass the socket!
+            temporary, 1000, worker, [collector_worker]}
            ]}}.
 
 
@@ -63,4 +63,4 @@ init([]) ->
 %%%===================================================================
 
 start_init_children() ->
-    ipshow_sup:start_children(10).
+    collector_sup:start_children(10).

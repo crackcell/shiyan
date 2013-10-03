@@ -7,6 +7,6 @@
                   kernel,
                   stdlib
                  ]},
-  {mod, {colector_app, []}},
+  {mod, {collector_app, []}},
   {env, []}
  ]}.
