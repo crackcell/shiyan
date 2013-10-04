@@ -4,15 +4,17 @@
 %%% @doc
 %%% file desc
 %%% @end
-%%% Created : Tue Oct  1 20:49:38 2013
+%%% Created : Fri Oct  4 14:08:36 2013
 %%%-------------------------------------------------------------------
 
--module(collector_worker).
+-module(collector_infodb).
 -author('tanmenglong@gmail.com').
 -behaviour(gen_server).
 
+-include("schema.hrl").
+
 %% API
--export([start_link/1]).
+-export([start_link/0, save_nodeinfo/2, get_nodeinfo/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -20,41 +22,54 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {socket}).
+-record(state, {ets_tabid}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-start_link(Socket) ->
-    gen_server:start_link(?MODULE, Socket, []).
+start_link() ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+
+save_nodeinfo(NodeName, NetInfo) ->
+    gen_server:call(?SERVER, {save_nodeinfo, NodeName, NetInfo}).
+
+get_nodeinfo(NodeName) ->
+    gen_server:call(?SERVER, {get_nodeinfo, NodeName}).
+
+
 
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
 
 %% @private
-init(Socket) ->
-    % Seeding the process
-    %<<A:32, B:32, C:32>> = crypto:rand_bytes(12),
-    %random:seed({A, B, C}),
-    gen_server:cast(self(), accept),
-    {ok, #state{socket=Socket}}.
+init([]) ->
+    TabId = ets:new(infodb, [set, named_table]),
+    {ok, #state{ets_tabid=TabId}}.
 
 %% @private
-%% Never used
+handle_call({save_nodeinfo, NodeName, NetInfo}, _From, State) ->
+    F = fun() -> mnesia:write(#shiyan_nodeinfo{node_name=NodeName,
+                                               net_info=NetInfo})
+        end,
+    Reply = mnesia:activity(transaction, F),
+    {reply, Reply, State};
+handle_call({get_nodeinfo, NodeName}, _From, State) ->
+    F = fun() -> case mnesia:read(shiyan_nodeinfo, NodeName) of
+                     [] -> undefined;
+                     Other -> Other
+                 end
+        end,
+    Reply = mnesia:activity(transaction, F),
+    {reply, Reply, State};
 handle_call(_Request, _From, State) ->
-    {noreply, State}.
+    Reply = ok,
+    {reply, Reply, State}.
 
 %% @private
-handle_cast(accept, State=#state{socket=ListenSocket}) ->
-    lager:info("a new worker started"),
-    {ok, AcceptSocket} = gen_tcp:accept(ListenSocket),
-    collector_sup:start_child(), % A new acceptor is born
-    send(AcceptSocket, "Hello world", []),
-    %{noreply, State#state{socket=AcceptSocket}}.
-    gen_tcp:close(AcceptSocket),
-    {stop, normal, State}.
+handle_cast(_Msg, State) ->
+    {noreply, State}.
 
 %% @private
 handle_info(_Info, State) ->
@@ -72,10 +87,6 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%===================================================================
 
-send(Socket, Str, Args) ->
-    ok = gen_tcp:send(Socket, io_lib:format(Str++"~n", Args)),
-    ok = inet:setopts(Socket, [{active, once}]),
-    ok.
 
 %%%===================================================================
 %%% Unit tests

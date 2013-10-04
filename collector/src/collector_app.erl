@@ -10,8 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    ok = lager:start(),
-    {ok, _} = collector_sup:start_link().
+    collector_sup:start_link().
 
 stop(_State) ->
     ok.

@@ -5,7 +5,9 @@
   {registered, []},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+                  lager,
+                  mnesia
                  ]},
   {mod, {collector_app, []}},
   {env, []}

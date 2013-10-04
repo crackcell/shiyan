@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-IPSHOW_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" IPSHOW_CONF="priv/conf/ipshow.conf" erl -pa ebin -pa deps/*/ebin
+COLLECTOR_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" \
+COLLECTOR_CONF="priv/conf/ipshow.conf" \
+erl -name $USER@$(hostname) \
+ -pa ebin -pa deps/*/ebin

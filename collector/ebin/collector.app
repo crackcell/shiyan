@@ -2,7 +2,8 @@
              [{description,"collector"},
               {vsn,"1"},
               {registered,[]},
-              {applications,[kernel,stdlib]},
+              {applications,[kernel,stdlib,lager,mnesia]},
               {mod,{collector_app,[]}},
               {env,[]},
-              {modules,[collector_app,collector_sup,collector_worker]}]}.
+              {modules,[collector,collector_acceptor,collector_app,
+                        collector_infodb,collector_listener,collector_sup]}]}.
