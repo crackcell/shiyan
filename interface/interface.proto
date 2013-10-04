@@ -1,0 +1,33 @@
+enum MessageType {
+  NET_INFO = 0;
+}
+
+message NetInterfaceInfo {
+  optional string device = 1;
+  optional string inet = 2;
+  optional string inet6 = 3;
+  optional string netmask = 4;
+  optional string netmask6 = 5;
+}
+
+message NetInfo {
+  repeated NetInterfaceInfo addresses = 1;
+}
+
+message Info {
+  optional NetInfo net_info = 1;
+}
+
+enum CommandType {
+  SUBMIT_INFO = 1;
+}
+
+enum ProcessorType {
+  COLLECTOR = 1;
+}
+
+message Request {
+  required ProcessorType processor = 1;
+  required CommandType command = 2;
+  optional Info info = 3;
+}
