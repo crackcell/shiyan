@@ -4,3 +4,5 @@ deps
 *.beam
 *.plt
 log
+erl_crash.dump
+collector/rel/collector

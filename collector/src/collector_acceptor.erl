@@ -11,6 +11,8 @@
 -author('tanmenglong@gmail.com').
 -behaviour(gen_server).
 
+-include("interface_pb.hrl").
+
 %% API
 -export([start_link/1]).
 
@@ -38,6 +40,7 @@ init(Socket) ->
     % Seeding the process
     %<<A:32, B:32, C:32>> = crypto:rand_bytes(12),
     %random:seed({A, B, C}),
+    lager:info("worker started"),
     gen_server:cast(self(), accept),
     {ok, #state{socket=Socket}}.
 
@@ -48,15 +51,28 @@ handle_call(_Request, _From, State) ->
 
 %% @private
 handle_cast(accept, State=#state{socket=ListenSocket}) ->
-    lager:info("a new worker started"),
     {ok, AcceptSocket} = gen_tcp:accept(ListenSocket),
+    lager:info("accepted socket"),
     collector_listener:start_child(), % A new acceptor is born
-    send(AcceptSocket, "Hello world", []),
-    %{noreply, State#state{socket=AcceptSocket}}.
-    gen_tcp:close(AcceptSocket),
-    {stop, normal, State}.
+    active_once(AcceptSocket),
+    {noreply, State}.
 
 %% @private
+handle_info({tcp, Socket, Str}, State) ->
+    case collector_text_protocol:parse_cmd_type(Str) of
+        add_nodeinfo ->
+            {ok, {NodeName, Ip}} =
+                collector_text_protocol:parse_add_nodeinfo(Str),
+            collector_infodb:add_nodeinfo(NodeName, Ip);
+        get_nodeinfo ->
+            {ok, NodeName} =
+                collector_text_protocol:parse_get_nodeinfo(Str),
+            {_, _, NetInfo} = collector_infodb:get_nodeinfo(NodeName),
+            send(Socket, NetInfo, [])
+    end,
+    gen_tcp:close(Socket),
+    gen_server:cast(self(), accept),
+    {stop, normal, State};
 handle_info(_Info, State) ->
     {noreply, State}.
 
@@ -76,6 +92,9 @@ send(Socket, Str, Args) ->
     ok = gen_tcp:send(Socket, io_lib:format(Str++"~n", Args)),
     ok = inet:setopts(Socket, [{active, once}]),
     ok.
+
+active_once(Socket) ->
+    ok = inet:setopts(Socket, [{active, once}]).
 
 %%%===================================================================
 %%% Unit tests

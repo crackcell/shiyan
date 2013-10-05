@@ -14,7 +14,7 @@
 -include("schema.hrl").
 
 %% API
--export([start_link/0, save_nodeinfo/2, get_nodeinfo/1]).
+-export([start_link/0, add_nodeinfo/2, get_nodeinfo/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -22,7 +22,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {ets_tabid}).
+-record(state, {}).
 
 %%%===================================================================
 %%% API
@@ -31,13 +31,11 @@
 start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
-save_nodeinfo(NodeName, NetInfo) ->
-    gen_server:call(?SERVER, {save_nodeinfo, NodeName, NetInfo}).
+add_nodeinfo(NodeName, NetInfo) ->
+    gen_server:call(?SERVER, {add_nodeinfo, NodeName, NetInfo}).
 
 get_nodeinfo(NodeName) ->
     gen_server:call(?SERVER, {get_nodeinfo, NodeName}).
-
-
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -45,11 +43,11 @@ get_nodeinfo(NodeName) ->
 
 %% @private
 init([]) ->
-    TabId = ets:new(infodb, [set, named_table]),
-    {ok, #state{ets_tabid=TabId}}.
+    lager:info("infodb started"),
+    {ok, #state{}}.
 
 %% @private
-handle_call({save_nodeinfo, NodeName, NetInfo}, _From, State) ->
+handle_call({add_nodeinfo, NodeName, NetInfo}, _From, State) ->
     F = fun() -> mnesia:write(#shiyan_nodeinfo{node_name=NodeName,
                                                net_info=NetInfo})
         end,
@@ -61,7 +59,7 @@ handle_call({get_nodeinfo, NodeName}, _From, State) ->
                      Other -> Other
                  end
         end,
-    Reply = mnesia:activity(transaction, F),
+    Reply = lists:nth(1, mnesia:activity(transaction, F)),
     {reply, Reply, State};
 handle_call(_Request, _From, State) ->
     Reply = ok,

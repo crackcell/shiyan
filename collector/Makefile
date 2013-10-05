@@ -1,4 +1,4 @@
-.PHONY : all deps clean test
+.PHONY : all deps clean test release
 
 REBAR = ../rebar
 
@@ -6,7 +6,7 @@ all : deps
 	$(REBAR) compile
 
 deps :
-	make deps -C ../
+	$(REBAR) get-deps
 
 clean :
 	$(REBAR) delete-deps
@@ -16,3 +16,5 @@ clean :
 test :
 	$(REBAR) compile eunit
 
+release : all
+	$(REBAR) generate

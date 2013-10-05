@@ -1,12 +1,10 @@
-.PHONY : all deps clean
+.PHONY : all clean
 
-REBAR = ./rebar
-
-all : deps
+all :
+	make -C interface
 	make -C collector
 
-deps :
-	$(REBAR) get-deps
-
 clean :
+	rm -rf deps
 	make clean -C collector
+	make clean -C interface

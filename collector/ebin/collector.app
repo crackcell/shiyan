@@ -6,4 +6,6 @@
               {mod,{collector_app,[]}},
               {env,[]},
               {modules,[collector,collector_acceptor,collector_app,
-                        collector_infodb,collector_listener,collector_sup]}]}.
+                        collector_infodb,collector_listener,collector_sup,
+                        collector_text_protocol,
+                        collector_text_protocol_parser,collector_utils]}]}.

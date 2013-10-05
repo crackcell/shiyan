@@ -49,7 +49,7 @@ init([]) ->
     Port = 9001,
     %% Set the socket into {active_once} mode.
     %% See sockserv_serv comments for more details.
-    {ok, ListenSocket} = gen_tcp:listen(Port, [{active,once}, {packet,line}]),
+    {ok, ListenSocket} = gen_tcp:listen(Port, [{active,once}, {reuseaddr, true}]),
     spawn_link(fun start_init_children/0),
 
     RestartStrategy = simple_one_for_one,
@@ -58,7 +58,7 @@ init([]) ->
     SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
     Acceptor = {collector_acceptor,
                 {collector_acceptor, start_link, [ListenSocket]},
-                permanent, 1000, worker, [collector_acceptor]},
+                transient, 1000, worker, [collector_acceptor]},
     Children = [Acceptor],
     {ok, {SupFlags, Children}}.
 
@@ -68,4 +68,4 @@ init([]) ->
 %%%===================================================================
 
 start_init_children() ->
-    collector_listener:start_children(10).
+    collector_listener:start_children(3).
