@@ -1,12 +1,12 @@
 .PHONY : all deps clean test
 
-REBAR = ./rebar
+REBAR = ../rebar
 
 all : deps
 	$(REBAR) compile
 
 deps :
-	$(REBAR) get-deps
+	make deps -C ../
 
 clean :
 	$(REBAR) delete-deps

@@ -56,7 +56,8 @@ init([]) ->
     MaxRestarts = 60,
     MaxSecondsBetweenRestarts = 3600,
     SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
-    Acceptor = {collector_acceptor, {collector_acceptor, start_link, []},
+    Acceptor = {collector_acceptor,
+                {collector_acceptor, start_link, [ListenSocket]},
                 permanent, 1000, worker, [collector_acceptor]},
     Children = [Acceptor],
     {ok, {SupFlags, Children}}.
