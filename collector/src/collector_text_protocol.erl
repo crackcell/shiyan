@@ -32,7 +32,6 @@ parse_add_nodeinfo(RawStr) ->
 
 parse_get_nodeinfo(RawStr) ->
     Tokens = string:tokens(collector_utils:trim(RawStr), "\t"),
-    io:format("tokens: ~p~n", [Tokens]),
     NodeName = lists:nth(2, Tokens),
     {ok, NodeName}.
 

@@ -63,7 +63,8 @@ handle_info({tcp, Socket, Str}, State) ->
         add_nodeinfo ->
             {ok, {NodeName, Ip}} =
                 collector_text_protocol:parse_add_nodeinfo(Str),
-            collector_infodb:add_nodeinfo(NodeName, Ip);
+            collector_infodb:add_nodeinfo(NodeName, Ip),
+            send(Socket, "ok", []);
         get_nodeinfo ->
             {ok, NodeName} =
                 collector_text_protocol:parse_get_nodeinfo(Str),
