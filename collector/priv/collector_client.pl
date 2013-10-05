@@ -35,6 +35,7 @@ sub add_nodeinfo {
     my $hostname = `hostname`;
     chomp($hostname);
     my $cmd = "(echo \"add_nodeinfo\\t$hostname\\t" . get_ip() . "\"; sleep 5) | nc $host $port";
+    print $cmd, "\n";
     print `$cmd`;
 }
 
@@ -42,6 +43,7 @@ sub get_nodeinfo {
     my $hostname = `hostname`;
     chomp($hostname);
     my $cmd = "(echo \"get_nodeinfo\\t$hostname\"; sleep 5) | nc $host $port";
+    print $cmd, "\n";
     print `$cmd`;
 }
 
