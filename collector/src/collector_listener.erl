@@ -12,7 +12,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, start_child/0, start_children/1]).
+-export([start_link/1, start_child/0, start_children/1]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -30,8 +30,8 @@
 %% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link() ->
-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
+start_link(Properties) ->
+    supervisor:start_link({local, ?SERVER}, ?MODULE, Properties).
 
 start_child() ->
     supervisor:start_child(?MODULE, []).
@@ -44,13 +44,19 @@ start_children(N) when is_integer(N) ->
 %%%===================================================================
 
 %% @private
-init([]) ->
-    %{ok, Port} = application:get_env(port),
-    Port = 9001,
-    %% Set the socket into {active_once} mode.
-    %% See sockserv_serv comments for more details.
+init(Properties) ->
+    io:format("prop: ~p~n", [Properties]),
+    Port = hd(orddict:fetch(port, Properties)),
+    WorkerNumber = hd(orddict:fetch(worker_num, Properties)),
+    io:format("prop: ~p, ~p~n", [Port, WorkerNumber]),
     {ok, ListenSocket} = gen_tcp:listen(Port, [{active,once}, {reuseaddr, true}]),
-    spawn_link(fun start_init_children/0),
+    lager:info("started listening on port ~B", [Port]),
+    %spawn_link(fun start_init_children/0),
+    spawn_link(
+      fun() ->
+              collector_listener:start_children(WorkerNumber),
+              lager:info("started ~B workers", [WorkerNumber])
+      end),
 
     RestartStrategy = simple_one_for_one,
     MaxRestarts = 60,
@@ -66,6 +72,3 @@ init([]) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-
-start_init_children() ->
-    collector_listener:start_children(3).

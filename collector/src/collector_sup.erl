@@ -12,7 +12,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0]).
+-export([start_link/1]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -30,23 +30,23 @@
 %% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link() ->
-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
-
+start_link(Properties) ->
+    supervisor:start_link({local, ?SERVER}, ?MODULE, Properties).
 
 %%%===================================================================
 %%% Supervisor callbacks
 %%%===================================================================
 
 %% @private
-init([]) ->
+init(Properties) ->
     RestartStrategy = one_for_one,
     MaxRestarts = 60,
     MaxSecondsBetweenRestarts = 3600,
     SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
-    Listener = {collector_listener, {collector_listener, start_link, []},
+    Listener = {collector_listener,
+                {collector_listener, start_link, [Properties]},
                 permanent, 1000, supervisor, [collector_listener]},
-    Infodb = {collector_infodb, {collector_infodb, start_link, []},
+    Infodb = {collector_infodb, {collector_infodb, start_link, [Properties]},
               permanent, 1000, worker, [collector_infodb]},
     Children = [Listener, Infodb],
     {ok, {SupFlags, Children}}.

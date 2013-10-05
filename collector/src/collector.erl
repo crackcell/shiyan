@@ -19,10 +19,7 @@
 %%%===================================================================
 
 start() ->
-    setenv(),
-    application:start(lager),
-    application:start(mnesia),
-    mnesia:wait_for_tables([shiyan_nodeinfo], 5000),
+    setup_deps(),
     application:start(collector).
 
 stop() ->
@@ -30,7 +27,7 @@ stop() ->
 
 install_database(Nodes, Path) ->
     application:set_env(mnesia, dir, Path),
-    mnesia:create_schema([node()]),
+    mnesia:create_schema(Nodes),
     rpc:multicall(Nodes, application, start, [mnesia]),
     mnesia:create_table(shiyan_nodeinfo,
                         [{attributes, record_info(fields, shiyan_nodeinfo)},
@@ -41,8 +38,12 @@ install_database(Nodes, Path) ->
 %%% Internal functions
 %%%===================================================================
 
-setenv() ->
-    application:set_env(mnesia, dir, "/home/crackcell/usr/lib/shiyan/data").
+setup_deps() ->
+    application:set_env(mnesia, dir, os:getenv("data_dir")),
+    %% ensure all dependences started
+    application:ensure_started(mnesia),
+    application:ensure_started(lager),
+    mnesia:wait_for_tables([shiyan_nodeinfo], 5000).
 
 %%%===================================================================
 %%% Unit tests
