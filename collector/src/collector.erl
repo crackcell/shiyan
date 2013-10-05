@@ -10,7 +10,7 @@
 
 -module(collector).
 -author('tanmenglong@gmail.com').
--export([start/0, stop/0, install_database/2]).
+-export([start/0, stop/0, install_database/1]).
 
 -include("schema.hrl").
 
@@ -25,8 +25,8 @@ start() ->
 stop() ->
     application:stop(collector).
 
-install_database(Nodes, Path) ->
-    application:set_env(mnesia, dir, Path),
+install_database(Nodes) ->
+    %application:set_env(mnesia, dir, Path),
     mnesia:create_schema(Nodes),
     rpc:multicall(Nodes, application, start, [mnesia]),
     mnesia:create_table(shiyan_nodeinfo,
@@ -39,7 +39,6 @@ install_database(Nodes, Path) ->
 %%%===================================================================
 
 setup_deps() ->
-    application:set_env(mnesia, dir, os:getenv("data_dir")),
     %% ensure all dependences started
     application:ensure_started(mnesia),
     application:ensure_started(lager),

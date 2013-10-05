@@ -10,7 +10,7 @@
 
 -module(collector_utils).
 -author('tanmenglong@gmail.com').
--export([trim/1, trim_last/1]).
+-export([trim/1, trim_last/1, get_app_env/1]).
 
 %%%===================================================================
 %%% API
@@ -21,6 +21,12 @@ trim(Str) ->
 
 trim_last(Str) ->
     hd(string:tokens(Str, "\r\n")).
+
+get_app_env(Key) ->
+    case application:get_env(collector, Key) of
+        {ok, Value} -> Value;
+        _ -> error(invalid_conf)
+    end.
 
 %%%===================================================================
 %%% Internal functions

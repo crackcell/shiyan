@@ -14,7 +14,7 @@
 -include("schema.hrl").
 
 %% API
--export([start_link/1, add_nodeinfo/2, get_nodeinfo/1]).
+-export([start_link/0, add_nodeinfo/2, get_nodeinfo/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -28,8 +28,8 @@
 %%% API
 %%%===================================================================
 
-start_link(Properties) ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], Properties).
+start_link() ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 add_nodeinfo(NodeName, NetInfo) ->
     gen_server:call(?SERVER, {add_nodeinfo, NodeName, NetInfo}).
@@ -42,7 +42,7 @@ get_nodeinfo(NodeName) ->
 %%%===================================================================
 
 %% @private
-init(_Properties) ->
+init([]) ->
     lager:info("infodb started"),
     {ok, #state{}}.
 
