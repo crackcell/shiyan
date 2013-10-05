@@ -1,4 +1,4 @@
-.PHONY : all clean
+.PHONY : all clean release
 
 all :
 	make -C interface
@@ -8,3 +8,6 @@ clean :
 	rm -rf deps
 	make clean -C collector
 	make clean -C interface
+
+release :
+	make release -C collector
