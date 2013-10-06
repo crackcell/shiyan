@@ -13,6 +13,12 @@ my $port = 9601;
 
 #------------------ function ------------------
 
+sub usage {
+    print("Usage: collector_client.pl COMMAND\n");
+    print(" Commands:\n");
+    print("  add_nodeinfo\n");
+    print("  get_nodeinfo\n");
+}
 
 #------------------- main -------------------
 
@@ -48,7 +54,8 @@ sub get_nodeinfo {
 }
 
 if (scalar @ARGV < 1) {
-    die;
+    usage();
+    exit 0;
 }
 
 if ($ARGV[0] eq "add_nodeinfo") {
