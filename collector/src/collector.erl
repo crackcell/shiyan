@@ -10,7 +10,7 @@
 
 -module(collector).
 -author('tanmenglong@gmail.com').
--export([start/0, stop/0, install_database/1]).
+-export([start/0, stop/0, stop_all/0, install_database/1]).
 
 -include("schema.hrl").
 
@@ -24,6 +24,11 @@ start() ->
 
 stop() ->
     application:stop(collector).
+
+stop_all() ->
+    stop(),
+    application:stop(mnesia),
+    application:stop(lager).
 
 install_database(Nodes) ->
     %application:set_env(mnesia, dir, Path),
