@@ -78,8 +78,8 @@ command_dispatcher(get_nodeinfo, Socket, Str) ->
     send(Socket, NetInfo, []);
 command_dispatcher(get_all_nodeinfo, Socket, Str) ->
     ok;
-command_dispatcher(_, Socket, Str) ->
-    send(Socket, "unknown command", []).
+command_dispatcher(Command, Socket, Str) ->
+    send(Socket, "unknown command: ~p", [Command]).
 
 %% @private
 terminate(_Reason, _State) ->
