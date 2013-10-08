@@ -31,7 +31,7 @@ stop_all() ->
     application:stop(lager).
 
 install_database(Nodes) ->
-    %application:set_env(mnesia, dir, Path),
+    stop_all(),
     mnesia:create_schema(Nodes),
     rpc:multicall(Nodes, application, start, [mnesia]),
     mnesia:create_table(shiyan_nodeinfo,

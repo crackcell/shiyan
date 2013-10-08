@@ -21,6 +21,7 @@ parse_cmd_type(RawStr) ->
     case lists:nth(1, Tokens) of
         "add_nodeinfo" -> add_nodeinfo;
         "get_nodeinfo" -> get_nodeinfo;
+        "get_all_nodeinfo" -> get_all_nodeinfo;
         _ -> unknown
     end.
 

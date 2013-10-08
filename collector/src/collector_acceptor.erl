@@ -59,23 +59,27 @@ handle_cast(accept, State=#state{socket=ListenSocket}) ->
 
 %% @private
 handle_info({tcp, Socket, Str}, State) ->
-    case collector_text_protocol:parse_cmd_type(Str) of
-        add_nodeinfo ->
-            {ok, {NodeName, Ip}} =
-                collector_text_protocol:parse_add_nodeinfo(Str),
-            collector_infodb:add_nodeinfo(NodeName, Ip),
-            send(Socket, "ok", []);
-        get_nodeinfo ->
-            {ok, NodeName} =
-                collector_text_protocol:parse_get_nodeinfo(Str),
-            {_, _, NetInfo} = collector_infodb:get_nodeinfo(NodeName),
-            send(Socket, NetInfo, [])
-    end,
+    command_dispatcher(collector_text_protocol:parse_cmd_type(Str), Socket, Str),
     gen_tcp:close(Socket),
     gen_server:cast(self(), accept),
     {stop, normal, State};
 handle_info(_Info, State) ->
     {noreply, State}.
+
+command_dispatcher(add_nodeinfo, Socket, Str) ->
+    {ok, {NodeName, Ip}} =
+        collector_text_protocol:parse_add_nodeinfo(Str),
+    collector_infodb:add_nodeinfo(NodeName, Ip),
+    send(Socket, "ok", []);
+command_dispatcher(get_nodeinfo, Socket, Str) ->
+    {ok, NodeName} =
+        collector_text_protocol:parse_get_nodeinfo(Str),
+    {_, _, NetInfo} = collector_infodb:get_nodeinfo(NodeName),
+    send(Socket, NetInfo, []);
+command_dispatcher(get_all_nodeinfo, Socket, Str) ->
+    ok;
+command_dispatcher(_, Socket, Str) ->
+    send(Socket, "unknown command", []).
 
 %% @private
 terminate(_Reason, _State) ->
