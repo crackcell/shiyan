@@ -19,4 +19,4 @@
 ##-env ERL_FULLSWEEP_AFTER 10
 
 ## Mnesia data path
--mnesia dir '"/home/a/usr/lib/shiyan/data"'
+-mnesia dir '"/home/a/var/shiyan/data"'
